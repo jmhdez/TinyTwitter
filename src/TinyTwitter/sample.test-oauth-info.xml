@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<OAuthInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ConsumerKey>YOUR_CONSUMER_KEY</ConsumerKey>
+  <ConsumerSecret>YOUR_CONSUMER_SECRET</ConsumerSecret>
+  <AccessToken>YOUR_ACCESS_TOKEN</AccessToken>
+  <AccessSecret>YOUR_ACCESS_SECRET</AccessSecret>
+</OAuthInfo>

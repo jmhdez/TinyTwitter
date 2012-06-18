@@ -4,3 +4,5 @@ _Resharper.*
 *.Resharper.user
 *.suo
 TestResults
+# Ignore oauth keys
+test-oauth-info.xml
