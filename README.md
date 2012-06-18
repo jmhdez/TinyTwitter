@@ -3,8 +3,8 @@ TinyTwitter
 
 Very simple library to access twitter from C# using the REST API
 
-How to use
-----------
+How to use TinyTwitter
+----------------------
 
 Just grab the latest version of [TinyTwitter.cs](https://github.com/jmhdez/TinyTwitter/blob/master/src/TinyTwitter/TinyTwitter.cs) and include it in 
 your project. That's all. No binary dependecies are required to 
