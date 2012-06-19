@@ -7,11 +7,10 @@ How to use TinyTwitter
 ----------------------
 
 Just grab the latest version of [TinyTwitter.cs](https://github.com/jmhdez/TinyTwitter/blob/master/src/TinyTwitter/TinyTwitter.cs) and include it in 
-your project. That's all. No binary dependecies are required to 
-use TinyTwitter.
+your project. That's all. No binary dependecies are needed.
 
 To use TinyTwitter you need to create and register an application
-with Twitter to obtain valid OAuth application tokens. More info
+with Twitter to obtain a valid set of OAuth application tokens. More info
 about this can be found in [Twitter's docs](https://dev.twitter.com/docs/auth/tokens-devtwittercom).
 
 Using those tokens, you can begin to use TinyTwitter to post 
@@ -28,7 +27,7 @@ and/or read tweets from your account:
 	vat twitter = new TinyTwitter(oauth);
 	
 	// Update status, i.e, post a new tweet
-	twitter.UpdateStatus("I'm tweetings from C#");
+	twitter.UpdateStatus("I'm tweeting from C#");
 	
 	// Get home timeline tweets
 	var tweets = twitter.GetHomeTimeline();
@@ -39,7 +38,7 @@ and/or read tweets from your account:
 Copyright and license
 ---------------------
 
-Copyright 2012 Juan M. Hernández.
+Copyright 2012 Juan M. Hernï¿½ndez.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this work except in compliance with the License.
