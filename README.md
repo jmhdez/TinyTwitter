@@ -38,7 +38,7 @@ and/or read tweets from your account:
 Copyright and license
 ---------------------
 
-Copyright 2012 Juan M. Hern�ndez.
+Copyright 2012 Juan M. Hernández.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this work except in compliance with the License.
