@@ -1,7 +1,9 @@
 TinyTwitter
 ===========
 
-Very simple library to access twitter from C# using the REST API
+Very simple library to access twitter from C# using the REST API. If you 
+are looking for a full-featured library, take a look at [Twitterizer](http://www.twitterizer.net/)
+or [TweetSharp](https://github.com/danielcrenna/tweetsharp).
 
 How to use TinyTwitter
 ----------------------
