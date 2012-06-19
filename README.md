@@ -26,7 +26,7 @@ and/or read tweets from your account:
 		ConsumerSecret = "YOUR CONSUMER SECRET"
 	};
 	
-	vat twitter = new TinyTwitter(oauth);
+	var twitter = new TinyTwitter(oauth);
 	
 	// Update status, i.e, post a new tweet
 	twitter.UpdateStatus("I'm tweeting from C#");
