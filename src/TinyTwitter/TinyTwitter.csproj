@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="sample.test-oauth-info.xml" />
-    <Content Include="test-oauth-info.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
