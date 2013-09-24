@@ -39,7 +39,7 @@ namespace TinyTwitter
 
 		public void UpdateStatus(string message)
 		{
-			new RequestBuilder(oauth, "POST", "http://api.twitter.com/1/statuses/update.xml")
+			new RequestBuilder(oauth, "POST", "https://api.twitter.com/1.1/statuses/update.json")
 				.AddParameter("status", message)
 				.Execute();
 		}
