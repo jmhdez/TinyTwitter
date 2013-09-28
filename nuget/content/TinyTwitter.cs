@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
+using System.Web.Script.Serialization;
 
 namespace TinyTwitter
 {
@@ -39,24 +39,24 @@ namespace TinyTwitter
 
 		public void UpdateStatus(string message)
 		{
-			new RequestBuilder(oauth, "POST", "http://api.twitter.com/1/statuses/update.xml")
+			new RequestBuilder(oauth, "POST", "https://api.twitter.com/1.1/statuses/update.json")
 				.AddParameter("status", message)
 				.Execute();
 		}
 
 		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, int? count = 20)
 		{
-			return GetTimeline("http://api.twitter.com/1/statuses/home_timeline.xml", sinceId, count);
+			return GetTimeline("http://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, count);
 		}
 
 		public IEnumerable<Tweet> GetMentions(long? sinceId = null, int? count = 20)
 		{
-			return GetTimeline("http://api.twitter.com/1/statuses/mentions.xml", sinceId, count);
+            return GetTimeline("http://api.twitter.com/1.1/statuses/mentions.json", sinceId, count);
 		}
 
 		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, int? count = 20)
 		{
-			return GetTimeline("http://api.twitter.com/1/statuses/user_timeline.xml", sinceId, count);
+            return GetTimeline("http://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, count);
 		}
 
 		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, int? count)
@@ -72,20 +72,33 @@ namespace TinyTwitter
 			var response = builder.Execute();
 
 			using (var stream = response.GetResponseStream())
-			{
-				var xml = XDocument.Load(new XmlTextReader(stream));
-				return xml.Descendants("status")
-					.Select(x => new Tweet
-					{
-						Id = long.Parse(x.Element("id").Value),
-						CreatedAt = DateTime.ParseExact(x.Element("created_at").Value, "ddd MMM dd HH:mm:ss zz00 yyyy", CultureInfo.InvariantCulture).ToLocalTime(),
-						UserName = x.Element("user").Element("name").Value,
-						ScreenName = x.Element("user").Element("screen_name").Value,
-						Text = x.Element("text").Value
-					})
-					.ToArray();
+            using (var reader = new StreamReader(stream))
+            {
+                var content = reader.ReadToEnd();
+                var serializer = new JavaScriptSerializer();
+
+                var tweets = (object[])serializer.DeserializeObject(content);
+
+                return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
+                {
+                    var user = ((Dictionary<string, object>)tweet["user"]);
+                    var date = DateTime.ParseExact(tweet["created_at"].ToString(),
+                                                   "ddd MMM dd HH:mm:ss zz00 yyyy",
+                                                   CultureInfo.InvariantCulture).ToLocalTime();
+                    return new Tweet
+                    {
+                        Id = (long) tweet["id"],
+                        CreatedAt =
+                            date,
+                        Text = (string) tweet["text"],
+                        UserName = (string) user["name"],
+                        ScreenName = (string) user["screen_name"]
+                    };
+                }).ToArray();
 			}
 		}
+
+        
 
 		#region RequestBuilder
 
