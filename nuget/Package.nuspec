@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
+Ôªø<?xml version="1.0"?>
 <package >
   <metadata>
     <id>TinyTwitter</id>
     <version>1.1.0</version>
-    <authors>Juan M. Hern·ndez</authors>
-    <owners>Juan M. Hern·ndez</owners>
+    <authors>Juan M. Hern√°ndez</authors>
+    <owners>Juan M. Hern√°ndez</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>https://github.com/jmhdez/TinyTwitter</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
