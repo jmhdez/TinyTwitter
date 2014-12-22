@@ -51,12 +51,12 @@ namespace TinyTwitter
 
 		public IEnumerable<Tweet> GetMentions(long? sinceId = null, int? count = 20)
 		{
-            return GetTimeline("http://api.twitter.com/1.1/statuses/mentions.json", sinceId, count);
+			return GetTimeline("http://api.twitter.com/1.1/statuses/mentions.json", sinceId, count);
 		}
 
 		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, int? count = 20)
 		{
-            return GetTimeline("http://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, count);
+			return GetTimeline("http://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, count);
 		}
 
 		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, int? count)
@@ -69,36 +69,35 @@ namespace TinyTwitter
 			if (count.HasValue)
 				builder.AddParameter("count", count.Value.ToString());
 
-			var response = builder.Execute();
-
+			using (var response = builder.Execute())
 			using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
-            {
-                var content = reader.ReadToEnd();
-                var serializer = new JavaScriptSerializer();
+			using (var reader = new StreamReader(stream))
+			{
+				var content = reader.ReadToEnd();
+				var serializer = new JavaScriptSerializer();
 
-                var tweets = (object[])serializer.DeserializeObject(content);
+				var tweets = (object[])serializer.DeserializeObject(content);
 
-                return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
-                {
-                    var user = ((Dictionary<string, object>)tweet["user"]);
-                    var date = DateTime.ParseExact(tweet["created_at"].ToString(),
-                                                   "ddd MMM dd HH:mm:ss zz00 yyyy",
-                                                   CultureInfo.InvariantCulture).ToLocalTime();
-                    return new Tweet
-                    {
-                        Id = (long) tweet["id"],
-                        CreatedAt =
-                            date,
-                        Text = (string) tweet["text"],
-                        UserName = (string) user["name"],
-                        ScreenName = (string) user["screen_name"]
-                    };
-                }).ToArray();
+				return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
+				{
+					var user = ((Dictionary<string, object>)tweet["user"]);
+					var date = DateTime.ParseExact(tweet["created_at"].ToString(),
+						"ddd MMM dd HH:mm:ss zz00 yyyy",
+						CultureInfo.InvariantCulture).ToLocalTime();
+					return new Tweet
+					{
+						Id = (long)tweet["id"],
+						CreatedAt =
+							date,
+						Text = (string)tweet["text"],
+						UserName = (string)user["name"],
+						ScreenName = (string)user["screen_name"]
+					};
+				}).ToArray();
 			}
 		}
 
-        
+
 
 		#region RequestBuilder
 
