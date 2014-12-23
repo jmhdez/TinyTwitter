@@ -144,7 +144,9 @@ namespace TinyTwitter
 
 				WriteRequestBody(request);
 
-				return request.GetResponse();
+                WebResponse ret=request.GetResponse();
+                request.Abort();
+                return ret;
 			}
 
 			private void WriteRequestBody(HttpWebRequest request)
