@@ -97,8 +97,6 @@ namespace TinyTwitter
 			}
 		}
 
-
-
 		#region RequestBuilder
 
 		public class RequestBuilder
@@ -144,9 +142,14 @@ namespace TinyTwitter
 
 				WriteRequestBody(request);
 
-                WebResponse ret=request.GetResponse();
+				// It looks like a bug in HttpWebRequest. It throws random TimeoutExceptions
+				// after some requests. Abort the request seems to work. More info: 
+				// http://stackoverflow.com/questions/2252762/getrequeststream-throws-timeout-exception-randomly
+
+                var response = request.GetResponse();
                 request.Abort();
-                return ret;
+
+                return response;
 			}
 
 			private void WriteRequestBody(HttpWebRequest request)

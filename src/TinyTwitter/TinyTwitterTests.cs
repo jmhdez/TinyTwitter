@@ -19,17 +19,23 @@ namespace TinyTwitter
 			if (!File.Exists(tokensFile))
 				Assert.Fail("Cannot find oauth parameter file. Add a file named test-oauth-info.xml to the project with your own OAuth tokens. You can find a sample in sample.test-oauth-info.xml");
 
-			var serializer = new XmlSerializer(typeof (OAuthInfo));
+			var serializer = new XmlSerializer(typeof(OAuthInfo));
 			using (var stream = File.OpenRead(tokensFile))
-				return (OAuthInfo) serializer.Deserialize(stream);
+				return (OAuthInfo)serializer.Deserialize(stream);
+		}
+
+		private static TinyTwitter CreateTinyTwitter()
+		{
+			var oauth = GetOAuthInfo();
+
+			var twitter = new TinyTwitter(oauth);
+			return twitter;
 		}
 
 		[TestMethod]
 		public void Write_tweets_and_read_timeline()
 		{
-			var oauth = GetOAuthInfo();
-
-			var twitter = new TinyTwitter(oauth);
+			var twitter = CreateTinyTwitter();
 
 			var status = Guid.NewGuid().ToString();
 			twitter.UpdateStatus(status);
@@ -39,6 +45,20 @@ namespace TinyTwitter
 
 			var tweets = twitter.GetHomeTimeline();
 			Assert.AreEqual(status, tweets.First().Text);
+		}
+
+		[TestMethod]
+		public void Write_many_tweets()
+		{
+			// Just to show the problem with HttpWebRequests and TimeoutExceptions
+
+			var twitter = CreateTinyTwitter();
+
+			for (var i = 0; i < 5; i++)
+			{
+				twitter.UpdateStatus(Guid.NewGuid().ToString());
+				Thread.Sleep(TimeSpan.FromMinutes(1));
+			}
 		}
 	}
 }
