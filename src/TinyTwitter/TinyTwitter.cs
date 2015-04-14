@@ -44,30 +44,36 @@ namespace TinyTwitter
 				.Execute();
 		}
 
-		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId=null, long? maxID=null, int? count=20)
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, maxID, count, "");
 		}
 
-		public IEnumerable<Tweet> GetMentions(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetMentions(long? sinceId=null, long? maxID=null, int? count=20)
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/mentions.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/mentions.json", sinceId, maxID, count, "");
 		}
 
-		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetUserTimeline(long? sinceId=null, long? maxID=null, int? count=20, string screenName="")
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, maxID, count, screenName);
 		}
 
-		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, int? count)
+		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, long? maxID, int? count, string screenName)
 		{
 			var builder=new RequestBuilder(oauth, "GET", url);
 
 			if(sinceId.HasValue)
 				builder.AddParameter("since_id", sinceId.Value.ToString());
 
+			if(maxID.HasValue)
+				builder.AddParameter("max_id", maxID.Value.ToString());
+
 			if(count.HasValue)
 				builder.AddParameter("count", count.Value.ToString());
+
+			if(screenName!="")
+				builder.AddParameter("screen_name", screenName.ToString());
 
 			string content;
 			var response=builder.Execute(out content);
