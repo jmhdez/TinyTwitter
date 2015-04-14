@@ -44,61 +44,60 @@ namespace TinyTwitter
 				.Execute();
 		}
 
-		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, long? maxId = null, int? count = 20)
 		{
-			return GetTimeline("http://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, maxId, count, "");
 		}
 
-		public IEnumerable<Tweet> GetMentions(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetMentions(long? sinceId = null, long? maxId = null, int? count = 20)
 		{
-            return GetTimeline("http://api.twitter.com/1.1/statuses/mentions.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/mentions.json", sinceId, maxId, count, "");
 		}
 
-		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, int? count = 20)
+		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, long? maxId = null, int? count = 20, string screenName = "")
 		{
-            return GetTimeline("http://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, count);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, maxId, count, screenName);
 		}
 
-		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, int? count)
+		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, long? maxId, int? count, string screenName)
 		{
 			var builder = new RequestBuilder(oauth, "GET", url);
 
 			if (sinceId.HasValue)
 				builder.AddParameter("since_id", sinceId.Value.ToString());
 
+			if (maxId.HasValue)
+				builder.AddParameter("max_id", maxId.Value.ToString());
+
 			if (count.HasValue)
 				builder.AddParameter("count", count.Value.ToString());
 
-			var response = builder.Execute();
+			if (screenName != "")
+				builder.AddParameter("screen_name", screenName);
 
-			using (var stream = response.GetResponseStream())
-            using (var reader = new StreamReader(stream))
-            {
-                var content = reader.ReadToEnd();
-                var serializer = new JavaScriptSerializer();
+			var responseContent = builder.Execute();
 
-                var tweets = (object[])serializer.DeserializeObject(content);
+			var serializer = new JavaScriptSerializer();
 
-                return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
-                {
-                    var user = ((Dictionary<string, object>)tweet["user"]);
-                    var date = DateTime.ParseExact(tweet["created_at"].ToString(),
-                                                   "ddd MMM dd HH:mm:ss zz00 yyyy",
-                                                   CultureInfo.InvariantCulture).ToLocalTime();
-                    return new Tweet
-                    {
-                        Id = (long) tweet["id"],
-                        CreatedAt =
-                            date,
-                        Text = (string) tweet["text"],
-                        UserName = (string) user["name"],
-                        ScreenName = (string) user["screen_name"]
-                    };
-                }).ToArray();
-			}
+			var tweets = (object[])serializer.DeserializeObject(responseContent);
+
+			return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
+			{
+				var user = ((Dictionary<string, object>)tweet["user"]);
+				var date = DateTime.ParseExact(tweet["created_at"].ToString(),
+					"ddd MMM dd HH:mm:ss zz00 yyyy",
+					CultureInfo.InvariantCulture).ToLocalTime();
+
+				return new Tweet
+				{
+					Id = (long)tweet["id"],
+					CreatedAt = date,
+					Text = (string)tweet["text"],
+					UserName = (string)user["name"],
+					ScreenName = (string)user["screen_name"]
+				};
+			}).ToArray();
 		}
-
-        
 
 		#region RequestBuilder
 
@@ -126,7 +125,7 @@ namespace TinyTwitter
 				return this;
 			}
 
-			public WebResponse Execute()
+			public string Execute()
 			{
 				var timespan = GetTimestamp();
 				var nonce = CreateNonce();
@@ -145,7 +144,25 @@ namespace TinyTwitter
 
 				WriteRequestBody(request);
 
-				return request.GetResponse();
+				// It looks like a bug in HttpWebRequest. It throws random TimeoutExceptions
+				// after some requests. Abort the request seems to work. More info: 
+				// http://stackoverflow.com/questions/2252762/getrequeststream-throws-timeout-exception-randomly
+
+				var response = request.GetResponse();
+
+				string content;
+
+				using (var stream = response.GetResponseStream())
+				{
+					using (var reader = new StreamReader(stream))
+					{
+						content = reader.ReadToEnd();
+					}
+				}
+
+				request.Abort();
+
+				return content;
 			}
 
 			private void WriteRequestBody(HttpWebRequest request)

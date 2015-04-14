@@ -2,15 +2,15 @@
 <package >
   <metadata>
     <id>TinyTwitter</id>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <authors>Juan M. Hernández</authors>
     <owners>Juan M. Hernández</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>https://github.com/jmhdez/TinyTwitter</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple library to access twitter from C#</description>
-    <releaseNotes>Fixed problem with HttpWebRequest launching random TimeoutException</releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <releaseNotes>Added options to set max_id and screen_name in twitter requests</releaseNotes>
+    <copyright>Copyright 2015</copyright>
     <tags>twitter</tags>
   </metadata>
 </package>
