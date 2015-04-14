@@ -6,3 +6,4 @@ _Resharper.*
 TestResults
 # Ignore oauth keys
 test-oauth-info.xml
+src/TinyTwitter/TinyTwitter.csproj.user

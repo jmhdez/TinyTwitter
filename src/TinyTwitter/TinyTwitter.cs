@@ -44,58 +44,57 @@ namespace TinyTwitter
 				.Execute();
 		}
 
-		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId=null, long? maxID=null, int? count=20)
+		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, long? maxId = null, int? count = 20)
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, maxID, count, "");
+			return GetTimeline("https://api.twitter.com/1.1/statuses/home_timeline.json", sinceId, maxId, count, "");
 		}
 
-		public IEnumerable<Tweet> GetMentions(long? sinceId=null, long? maxID=null, int? count=20)
+		public IEnumerable<Tweet> GetMentions(long? sinceId = null, long? maxId = null, int? count = 20)
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/mentions.json", sinceId, maxID, count, "");
+			return GetTimeline("https://api.twitter.com/1.1/statuses/mentions.json", sinceId, maxId, count, "");
 		}
 
-		public IEnumerable<Tweet> GetUserTimeline(long? sinceId=null, long? maxID=null, int? count=20, string screenName="")
+		public IEnumerable<Tweet> GetUserTimeline(long? sinceId = null, long? maxId = null, int? count = 20, string screenName = "")
 		{
-			return GetTimeline("https://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, maxID, count, screenName);
+			return GetTimeline("https://api.twitter.com/1.1/statuses/user_timeline.json", sinceId, maxId, count, screenName);
 		}
 
-		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, long? maxID, int? count, string screenName)
+		private IEnumerable<Tweet> GetTimeline(string url, long? sinceId, long? maxId, int? count, string screenName)
 		{
-			var builder=new RequestBuilder(oauth, "GET", url);
+			var builder = new RequestBuilder(oauth, "GET", url);
 
-			if(sinceId.HasValue)
+			if (sinceId.HasValue)
 				builder.AddParameter("since_id", sinceId.Value.ToString());
 
-			if(maxID.HasValue)
-				builder.AddParameter("max_id", maxID.Value.ToString());
+			if (maxId.HasValue)
+				builder.AddParameter("max_id", maxId.Value.ToString());
 
-			if(count.HasValue)
+			if (count.HasValue)
 				builder.AddParameter("count", count.Value.ToString());
 
-			if(screenName!="")
-				builder.AddParameter("screen_name", screenName.ToString());
+			if (screenName != "")
+				builder.AddParameter("screen_name", screenName);
 
-			string content;
-			var response=builder.Execute(out content);
+			var responseContent = builder.Execute();
 
-			var serializer=new JavaScriptSerializer();
+			var serializer = new JavaScriptSerializer();
 
-			var tweets=(object[])serializer.DeserializeObject(content);
+			var tweets = (object[])serializer.DeserializeObject(responseContent);
 
 			return tweets.Cast<Dictionary<string, object>>().Select(tweet =>
 			{
-				var user=((Dictionary<string, object>)tweet["user"]);
-				var date=DateTime.ParseExact(tweet["created_at"].ToString(),
+				var user = ((Dictionary<string, object>)tweet["user"]);
+				var date = DateTime.ParseExact(tweet["created_at"].ToString(),
 					"ddd MMM dd HH:mm:ss zz00 yyyy",
 					CultureInfo.InvariantCulture).ToLocalTime();
+
 				return new Tweet
 				{
-					Id=(long)tweet["id"],
-					CreatedAt=
-						date,
-					Text=(string)tweet["text"],
-					UserName=(string)user["name"],
-					ScreenName=(string)user["screen_name"]
+					Id = (long)tweet["id"],
+					CreatedAt = date,
+					Text = (string)tweet["text"],
+					UserName = (string)user["name"],
+					ScreenName = (string)user["screen_name"]
 				};
 			}).ToArray();
 		}
@@ -126,13 +125,7 @@ namespace TinyTwitter
 				return this;
 			}
 
-			public WebResponse Execute()
-			{
-				string content;
-				return Execute(out content);
-			}
-
-			public WebResponse Execute(out string content)
+			public string Execute()
 			{
 				var timespan = GetTimestamp();
 				var nonce = CreateNonce();
@@ -155,19 +148,21 @@ namespace TinyTwitter
 				// after some requests. Abort the request seems to work. More info: 
 				// http://stackoverflow.com/questions/2252762/getrequeststream-throws-timeout-exception-randomly
 
-                var response = request.GetResponse();
+				var response = request.GetResponse();
 
-				using(var stream=response.GetResponseStream())
+				string content;
+
+				using (var stream = response.GetResponseStream())
 				{
-					using(var reader=new StreamReader(stream))
+					using (var reader = new StreamReader(stream))
 					{
-						content=reader.ReadToEnd();
+						content = reader.ReadToEnd();
 					}
 				}
 
-                request.Abort();
+				request.Abort();
 
-                return response;
+				return content;
 			}
 
 			private void WriteRequestBody(HttpWebRequest request)
