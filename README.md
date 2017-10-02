@@ -13,7 +13,7 @@ your project. That's all. No binary dependecies are needed.
 
 To use TinyTwitter you need to create and register an application
 with Twitter to obtain a valid set of OAuth application tokens. More info
-about this can be found in [Twitter's docs](https://dev.twitter.com/docs/auth/tokens-devtwittercom).
+about this can be found in [Twitter's docs](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens).
 
 Using those tokens, you can begin to use TinyTwitter to post 
 and/or read tweets from your account:
