@@ -45,52 +45,52 @@ namespace TinyTwitter
 		}
 
 		public bool SendMessage(string message, string screenName)
-        {
-            var userId = GetIdByScreenName(screenName);
+		{
+		    var userId = GetIdByScreenName(screenName);
 
-            var eventObj =  new
-            {
-                type = "message_create",
-                message_create = new
-                {
-                    target = new
-                    {
-                        recipient_id = userId
-                    },
-                    message_data = new {text = message}
-                },
-            };
+		    var eventObj =  new
+		    {
+			type = "message_create",
+			message_create = new
+			{
+			    target = new
+			    {
+				recipient_id = userId
+			    },
+			    message_data = new {text = message}
+			},
+		    };
 
-            try
-            {
-                new RequestBuilder(oauth, "POST",
-                        "https://api.twitter.com/1.1/direct_messages/events/new.json")
-                    .Execute(true, eventObj);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+		    try
+		    {
+			new RequestBuilder(oauth, "POST",
+				"https://api.twitter.com/1.1/direct_messages/events/new.json")
+			    .Execute(true, eventObj);
+			return true;
+		    }
+		    catch
+		    {
+			return false;
+		    }
 
-        }
+		}
 
-        public string GetIdByScreenName(string screenName)
-        {
-            var response = new RequestBuilder(oauth, "GET", "https://api.twitter.com/1.1/users/show.json")
-                .AddParameter("screen_name", screenName)
-                .Execute();
+		public string GetIdByScreenName(string screenName)
+		{
+		    var response = new RequestBuilder(oauth, "GET", "https://api.twitter.com/1.1/users/show.json")
+			.AddParameter("screen_name", screenName)
+			.Execute();
 
-            dynamic deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
+		    dynamic deserializedResponse = new JavaScriptSerializer().DeserializeObject(response);
 
-            if (deserializedResponse != null && deserializedResponse["id_str"] != null)
-            {
-                return deserializedResponse["id_str"].ToString();
-            }
+		    if (deserializedResponse != null && deserializedResponse["id_str"] != null)
+		    {
+			return deserializedResponse["id_str"].ToString();
+		    }
 
-            return null;
+		    return null;
 
-        }
+		}
 
 		public IEnumerable<Tweet> GetHomeTimeline(long? sinceId = null, long? maxId = null, int? count = 20)
 		{
@@ -174,51 +174,51 @@ namespace TinyTwitter
 			}
 
 			public string Execute(bool isSendMessage = false, object eventObj = null)
-            {
-                var timespan = GetTimestamp();
-                var nonce = CreateNonce();
+			    {
+				var timespan = GetTimestamp();
+				var nonce = CreateNonce();
 
-                var parameters = new Dictionary<string, string>(customParameters);
-                AddOAuthParameters(parameters, timespan, nonce);
+				var parameters = new Dictionary<string, string>(customParameters);
+				AddOAuthParameters(parameters, timespan, nonce);
 
-                var signature = GenerateSignature(parameters);
-                var headerValue = GenerateAuthorizationHeaderValue(parameters, signature);
+				var signature = GenerateSignature(parameters);
+				var headerValue = GenerateAuthorizationHeaderValue(parameters, signature);
 
-                var request = (HttpWebRequest)WebRequest.Create(GetRequestUrl());
-                request.Method = method;
-                request.ContentType = isSendMessage ? "application/json": "application/x-www-form-urlencoded";
+				var request = (HttpWebRequest)WebRequest.Create(GetRequestUrl());
+				request.Method = method;
+				request.ContentType = isSendMessage ? "application/json": "application/x-www-form-urlencoded";
 
-                request.Headers.Add("Authorization", headerValue);
+				request.Headers.Add("Authorization", headerValue);
 
-                if (isSendMessage && eventObj != null)
-                {
-                    WriteRequestBody(request, eventObj);
-                }
-                else
-                {
-                    WriteRequestBody(request);
-                }
+				if (isSendMessage && eventObj != null)
+				{
+				    WriteRequestBody(request, eventObj);
+				}
+				else
+				{
+				    WriteRequestBody(request);
+				}
 
-                // It looks like a bug in HttpWebRequest. It throws random TimeoutExceptions
-                // after some requests. Abort the request seems to work. More info:
-                // http://stackoverflow.com/questions/2252762/getrequeststream-throws-timeout-exception-randomly
+				// It looks like a bug in HttpWebRequest. It throws random TimeoutExceptions
+				// after some requests. Abort the request seems to work. More info:
+				// http://stackoverflow.com/questions/2252762/getrequeststream-throws-timeout-exception-randomly
 
-                var response = request.GetResponse();
+				var response = request.GetResponse();
 
-                string content;
+				string content;
 
-                using (var stream = response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        content = reader.ReadToEnd();
-                    }
-                }
+				using (var stream = response.GetResponseStream())
+				{
+				    using (var reader = new StreamReader(stream))
+				    {
+					content = reader.ReadToEnd();
+				    }
+				}
 
-                request.Abort();
+				request.Abort();
 
-                return content;
-            }
+				return content;
+			    }
 
 			private void WriteRequestBody(HttpWebRequest request)
 			{
@@ -231,18 +231,18 @@ namespace TinyTwitter
 			}
 
 			public void WriteRequestBody(HttpWebRequest request, object eventObj)
-            {
-                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-                {
-                    string json = new JavaScriptSerializer().Serialize( new
-                    {
-                        @event = eventObj
-                    });
+			    {
+				using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+				{
+				    string json = new JavaScriptSerializer().Serialize( new
+				    {
+					@event = eventObj
+				    });
 
-                    streamWriter.Write(json);
-                }
+				    streamWriter.Write(json);
+				}
 
-            }
+			    }
 
 			private string GetRequestUrl()
 			{
