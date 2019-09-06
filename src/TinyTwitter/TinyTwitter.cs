@@ -35,7 +35,8 @@ namespace TinyTwitter
 		public TinyTwitter(OAuthInfo oauth)
 		{
 			this.oauth = oauth;
-		}
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+        }
 
 		public void UpdateStatus(string message)
 		{
