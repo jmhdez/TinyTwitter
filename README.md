@@ -37,6 +37,9 @@ and/or read tweets from your account:
 	foreach (var tweet in tweets)
 		Console.WriteLine("{0}: {1}", tweet.UserName, tweet.Text);
 
+	// Send a DM to your followers
+	twitter.SendMessage("Hello there!!", "<TWITTERHANDLE>")
+
 Copyright and license
 ---------------------
 
